@@ -1,4 +1,4 @@
 scala-fractals
 ==============
 
-Implementation of fractal algorithms in Scala based on Akka's actors.
+Implementation of fractals in Scala based on Akka's actors.
