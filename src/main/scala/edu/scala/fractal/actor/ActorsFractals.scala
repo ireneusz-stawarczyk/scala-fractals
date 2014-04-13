@@ -15,32 +15,38 @@
  * You should have received a copy of the GNU General Public License
  * along with scala-fractals. If not, see <http://www.gnu.org/licenses/>.
  */
-package edu.scala.fractal
+package edu.scala.fractal.actor
 
 import akka.actor._
 import akka.util.Timeout
 import akka.pattern.ask
+import edu.scala.fractal.Fractals
 import edu.scala.fractal.actor.FractalProtocol.{CalculateFractal, FractalResult}
-import edu.scala.fractal.actor.Master
+import edu.scala.fractal.buffer.FractalBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration._
+
+object ActorsFractals {
+  def apply(width : Int, height : Int) : Fractals =
+    new ActorsFractals(width, height)
+}
 
 /** Starting point for all fractals.
   *
   * This implementation is based on concurrent actors: it creates
   * main 'master' actor that handles the processing.
   */
-class Fractals(val width : Int, val height : Int) {
+class ActorsFractals(val width : Int, val height : Int) extends Fractals {
 
-  implicit private[this] val timeout = Timeout(10.seconds)
+  implicit private[this] val timeout = Timeout(100.seconds)
 
   private[this] val system = ActorSystem("FractalsSystem")
   private[this] val master = system.actorOf(Master.props(width, height), name = "master")
 
-  def updateBuffer(buffer : FractalBuffer) : Unit = {
+  override def updateBuffer(buffer : FractalBuffer) = {
     require(null != buffer, "buffer is empty")
 
-    val future = master ? CalculateFractal(buffer.zoom, buffer.moveX, buffer.moveY)
+    val future = master ? CalculateFractal(buffer.zoom, buffer.moveX, buffer.moveY, buffer.algorithm)
     val result = Await.result(future, timeout.duration).asInstanceOf[FractalResult]
 
     for {

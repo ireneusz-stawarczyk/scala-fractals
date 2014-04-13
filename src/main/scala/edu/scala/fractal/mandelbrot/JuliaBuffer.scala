@@ -15,22 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with scala-fractals. If not, see <http://www.gnu.org/licenses/>.
  */
-package edu.scala.fractal.actor
+package edu.scala.fractal.mandelbrot
 
-import akka.actor._
-import edu.scala.fractal.mandelbrot.MandelbrotAlgorithm
-import FractalProtocol.{Work, WorkResult}
+import edu.scala.fractal.buffer.{Drawer, DefaultFractalBuffer}
 
-object Worker {
-  def props(width : Int, height : Int) : Props = Props(new Worker(width, height))
+object JuliaBuffer {
+  def apply(drawer : Drawer) : JuliaBuffer = new  JuliaBuffer(drawer)
 }
 
-/** Every worker calculates single screen point. */
-class Worker(val width : Int, val height : Int) extends Actor {
-  private[this] val alg = MandelbrotAlgorithm(width, height)
+/** Stores the julia fractal state. Client has to provide the implementation
+  * for drawing the pixels, for example, to a temporary buffer or directly to the screen.
+  */
+final class JuliaBuffer(drawer : Drawer) extends DefaultFractalBuffer(drawer) {
 
-  def receive = {
-    case work : Work =>
-      sender ! WorkResult(work.x, work.y, alg.calculateRgb(work.x, work.y, work.zoom, work.moveX, work.moveY))
-  }
+  override def algorithm() : String = JuliaAlgorithm.algorithm
 }

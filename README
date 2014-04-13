@@ -1,6 +1,6 @@
-scala-fractals release 1.0
+scala-fractals release 1.1
 
-Implementation of chosen popular fractals in Scala based on Akka's actors.
+Implementation of popular fractal algorithms in Scala based on Akka's actors.
 The easiest way to run the project is by using scala-sbt.
 
 scala-fractals is free software: you can redistribute it and/or modify

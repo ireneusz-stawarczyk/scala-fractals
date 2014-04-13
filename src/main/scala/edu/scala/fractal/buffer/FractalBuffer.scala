@@ -15,13 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with scala-fractals. If not, see <http://www.gnu.org/licenses/>.
  */
-package edu.scala.fractal
+package edu.scala.fractal.buffer
 
 /** Stores the state of a fractal algorithm.
   *
   * Implementations have to provide a way to draw the pixels.
   */
 trait FractalBuffer {
+  
   def zoom : Double
   def moveX : Double
   def moveY : Double
@@ -35,4 +36,5 @@ trait FractalBuffer {
   def moveRight : Unit
 
   def drawPixel(x : Int, y : Int, rgb : Int) : Unit
+  def algorithm : String
 }

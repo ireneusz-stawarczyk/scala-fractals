@@ -17,26 +17,18 @@
  */
 package edu.scala.fractal.mandelbrot
 
-import edu.scala.fractal.FractalBuffer
+import edu.scala.fractal.buffer.{Drawer, DefaultFractalBuffer}
 
-/** Stores the mandelbrot fractal state. Client has to provide implementation
+object MandelbrotBuffer {
+  def apply(drawer : Drawer) : MandelbrotBuffer = new  MandelbrotBuffer(drawer)
+}
+
+/** Stores the mandelbrot fractal state. Client has to provide the implementation
   * for drawing the pixels, for example, to a temporary buffer or directly to the screen.
   */
-abstract class MandelbrotBuffer extends FractalBuffer {
+final class MandelbrotBuffer(drawer : Drawer) extends DefaultFractalBuffer(drawer) {
   
-  private[this] var _zoom = 1.0
-  private[this] var _moveX = -0.5
-  private[this] var _moveY = 0.0
-  private[this] var _move = 0.006
+  _moveX = -0.5
 
-  final override def zoom = _zoom
-  final override def moveX = _moveX
-  final override def moveY = _moveY
-
-  final override def zoomIn() : Unit = _zoom *= 2
-  final override def zoomOut() : Unit = _zoom /= 2
-  final override def moveUp() : Unit = _moveY -= (_move / _zoom)
-  final override def moveDown() : Unit = _moveY += (_move / _zoom)
-  final override def moveLeft() : Unit = _moveX -= (_move / _zoom)
-  final override def moveRight() : Unit = _moveX += (_move / _zoom)
+  override def algorithm() : String = MandelbrotAlgorithm.algorithm
 }

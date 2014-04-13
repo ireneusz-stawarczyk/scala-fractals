@@ -2,7 +2,7 @@ name := "scala-fractals"
 
 organization := "edu.scala.fractal"
 
-version := "1.0-SNASPHOT"
+version := "1.1-SNASPHOT"
 
 scalaVersion := "2.10.3"
 

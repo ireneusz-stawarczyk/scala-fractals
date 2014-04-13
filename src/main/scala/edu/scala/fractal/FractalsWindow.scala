@@ -17,7 +17,7 @@
  */
 package edu.scala.fractal
 
-import edu.scala.fractal.mandelbrot.MandelbrotBuffer
+import edu.scala.fractal.buffer.{FractalBuffer, Drawer}
 import java.awt.image.BufferedImage
 import java.awt.{Dimension, Graphics2D}
 import scala.swing.event.{Key, KeyPressed}
@@ -25,7 +25,8 @@ import scala.swing.{SimpleSwingApplication, MainFrame, Panel}
 
 /** The view part of the application based on Java Swing.
   *
-  * Arrows move the screen, PageDown zoomes in, PageUp zoomes out.
+  * Arrows move the screen, PageDown zoomes in, PageUp zoomes out, N chooses
+  * the next algorithm.
   */
 object FractalsWindow extends SimpleSwingApplication {
 
@@ -34,25 +35,28 @@ object FractalsWindow extends SimpleSwingApplication {
 
   def top = new MainFrame {
 
-    title = "scala-fractals 1.0"
+    title = "scala-fractals 1.1"
     resizable = false
 
     object fractalsPanel extends Panel {
 
       preferredSize = new Dimension(WIDTH, HEIGHT)
 
-      class MandelbrotBufferImpl(val image : BufferedImage) extends MandelbrotBuffer {
+      class DrawerImpl(val image : BufferedImage) extends Drawer {
         override def drawPixel(x : Int, y : Int, rgb : Int) : Unit = image.setRGB(x, y, rgb)
       }
 
       private[this] val image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB)
-      private[this] val buffer = new MandelbrotBufferImpl(image)
-      private[this] val fractals = new Fractals(WIDTH, HEIGHT)
+      private[this] val drawer = new DrawerImpl(image)
+      private[this] val buffers = FractalsBuffers(drawer)
+      private[this] val fractals = FractalsImpl(WIDTH, HEIGHT)
 
-      override def paintComponent(g : Graphics2D) {
+      override def paintComponent(g : Graphics2D) = {
         fractals.updateBuffer(buffer)
-        g.drawImage(buffer.image, 0, 0, null)
+        g.drawImage(image, 0, 0, null)
       }
+
+      def buffer : FractalBuffer = buffers.buffer
 
       focusable = true
       listenTo(keys)
@@ -75,6 +79,9 @@ object FractalsWindow extends SimpleSwingApplication {
           repaint
         case KeyPressed(_, Key.PageUp, _, _) =>
           buffer.zoomOut
+          repaint
+        case KeyPressed(_, Key.N, _, _) =>
+          buffers.next
           repaint
       }
     }

@@ -25,9 +25,9 @@ import FractalProtocol._
 object FractalProtocol {
 
   sealed trait FractalMessage
-  case class CalculateFractal(zoom : Double, moveX : Double, moveY : Double) extends FractalMessage
+  case class CalculateFractal(zoom : Double, moveX : Double, moveY : Double, algorithm : String) extends FractalMessage
   case class FractalResult(image : Array[Array[Int]]) extends FractalMessage
-  case class Work(x : Int, y : Int, zoom : Double, moveX : Double, moveY : Double) extends FractalMessage
+  case class Work(x : Int, y : Int, zoom : Double, moveX : Double, moveY : Double, algorithm : String) extends FractalMessage
   case class WorkResult(x : Int, y : Int, rgb : Int) extends FractalMessage
 }
 
@@ -35,7 +35,7 @@ object Master {
   def props(width : Int, height : Int) : Props = Props(new Master(width, height))
 }
 
-/** Main actor controlling the workers that do the calculations for the mandelbrot fractal. */
+/** Main actor controlling the workers that do the calculations for fractals. */
 class Master(val width : Int, val height : Int) extends Actor {
 
   private[this] val nrOfMessages = height * width
@@ -47,9 +47,9 @@ class Master(val width : Int, val height : Int) extends Actor {
   private[this] var fractalResultListener : ActorRef = _
 
   def receive = {
-    case CalculateFractal(zoom, moveX, moveY) =>
+    case CalculateFractal(zoom, moveX, moveY, algorithm) =>
       fractalResultListener = sender
-      calculateFractal(zoom, moveX, moveY)
+      calculateFractal(zoom, moveX, moveY, algorithm)
     case WorkResult(x, y, rgb) =>
       nrOfResults += 1
       fractal(y)(x) = rgb
@@ -59,7 +59,7 @@ class Master(val width : Int, val height : Int) extends Actor {
       }
   }
 
-  def calculateFractal(zoom : Double, moveX : Double, moveY : Double) {
+  def calculateFractal(zoom : Double, moveX : Double, moveY : Double, algorithm : String) = {
     nrOfResults = 0
 
     for { 
@@ -67,7 +67,7 @@ class Master(val width : Int, val height : Int) extends Actor {
       x <- 0 until width 
     } {
       fractal(y)(x) = 0
-      workerRouter ! Work(x, y, zoom, moveX, moveY)
+      workerRouter ! Work(x, y, zoom, moveX, moveY, algorithm)
     }
   }
 }
